@@ -12,3 +12,9 @@ product_router = APIRouter(prefix="/product", tags=["Products"])
 async def get_products(conn=Depends(get_connection)):
     product_repo = ProductRepo(conn)
     return product_repo.get_all()
+
+
+@product_router.get("/category", response_model=list[Product])
+async def get_products(category: str, conn=Depends(get_connection)):
+    product_repo = ProductRepo(conn)
+    return product_repo.get_by_category(category)
