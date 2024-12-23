@@ -91,3 +91,18 @@ class UserRepo:
             cur.execute("SELECT current_user")
             print(cur.fetchone())
             cur.connection.commit()
+
+    def remove_from_cart(self, article: int):
+        query = """
+        DELETE FROM cart_product WHERE idcart = (SELECT idcart FROM users INNER JOIN cart USING(iduser)
+	WHERE name=current_user) AND article = %s;
+
+"""
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (article,))
+            cur.execute("SELECT current_user")
+            print(cur.fetchone())
+            cur.connection.commit()
+
+    
