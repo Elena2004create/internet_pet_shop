@@ -42,4 +42,3 @@ async def add_to_cart(article: int, quantity: int, conn=Depends(get_connection))
 async def add_to_cart(article: int, conn=Depends(get_connection)):
     user_repo = UserRepo(conn)
     return user_repo.remove_from_cart(article)
-

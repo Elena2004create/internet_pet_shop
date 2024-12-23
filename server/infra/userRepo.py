@@ -104,5 +104,3 @@ class UserRepo:
             cur.execute("SELECT current_user")
             print(cur.fetchone())
             cur.connection.commit()
-
-    
