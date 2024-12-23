@@ -104,3 +104,14 @@ class UserRepo:
             cur.execute("SELECT current_user")
             print(cur.fetchone())
             cur.connection.commit()
+
+    def get_user_by_email(self, email:str):
+        query = """
+        SELECT * FROM users WHERE email = %s
+        """
+        cursor = self.conn.cursor()
+        cursor.execute(query, (email,))
+        user = cursor.fetchone()
+        user = UserReadDTO(**user)
+        cursor.close()
+        return user
