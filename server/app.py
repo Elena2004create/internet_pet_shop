@@ -5,6 +5,7 @@ import uvicorn
 
 from pres.user import user_router
 from pres.login import login_router
+from pres.product import product_router
 
 class Config:
     def __init__(self, db_host, db_port, db_user, db_pass, db_user_admin, db_password_admin, db_name):
@@ -30,6 +31,7 @@ def main():
     app.state.config = Config(db_host, db_port, db_user, db_pass, db_user_admin, db_password_admin, db_name)
     app.include_router(user_router)
     app.include_router(login_router)
+    app.include_router(product_router)
     return app
 
 if __name__ == "__main__":

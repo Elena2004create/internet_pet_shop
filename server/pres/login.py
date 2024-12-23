@@ -11,7 +11,7 @@ async def login(data: LoginDTO, conn = Depends(get_internal_conn)):
     user_repo = UserRepo(conn)
     user = user_repo.validate_user(data)
     if user:
-        return {"token": encode_token(user["iduser"])}
+        return {"token": encode_token(user["iduser"], data.password)}
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     

@@ -9,16 +9,6 @@ class UserRepo:
 
 
     def create_user(self, user: UserCreateDTO):
-        """ query =
-        SELECT * FROM createUser(%s,%s,%s,%s,%s)
-        
-        cursor = self.conn.cursor()
-        try:
-            cursor.execute(query, (user.name, user.email, user.sex, user.password, "USER"))
-            cursor.connection.commit()
-        except psycopg.errors.UniqueViolation as e:
-            raise HTTPException(status_code=409, detail="Email already registered")
-        cursor.close() """
 
         query = """
         CALL create_new_user(%s, %s, %s, %s, %s);
@@ -28,16 +18,16 @@ class UserRepo:
             cursor.execute("SAVEPOINT savepoint_create_user")
             
             cursor.execute(query, (user.name, user.email, user.sex, user.password, "User"))
-            #cursor.connection.commit()
         except psycopg.errors.UniqueViolation:
             cursor.execute("ROLLBACK TO SAVEPOINT savepoint_create_user")
-            raise Exception("Пользователь с таким email уже существует.")
+            raise HTTPException(status_code=409, detail="Пользователь с таким email или login уже существует.")
         except Exception as e:
             cursor.execute("ROLLBACK TO SAVEPOINT savepoint_create_user")
-            raise Exception(f"Ошибка: {str(e)}")
+            print(e)
         else:
             cursor.execute("RELEASE SAVEPOINT savepoint_create_user")
         finally:
+            cursor.connection.commit()
             cursor.close()
 
     def get_user_by_id(self, id):
@@ -53,10 +43,36 @@ class UserRepo:
     
     def validate_user(self, data: LoginDTO):
         query = """
-        SELECT * FROM users WHERE email = %s AND password = %s
+        SELECT * FROM autorizarion(%s, %s)
         """
         cursor = self.conn.cursor()
         cursor.execute(query, (data.email, data.password))
+        check = cursor.fetchone()
+        cursor.close()
+        if not check:
+            return
+        
+        query = """
+        SELECT iduser FROM users WHERE email = %s
+        """
+
+        cursor = self.conn.cursor()
+        cursor.execute(query, (data.email,))
         user = cursor.fetchone()
         cursor.close()
-        return user if user else None
+        if not user:
+            return
+        return user
+    
+
+    def get_cart(self):
+        query = """
+        SELECT * FROM cart_user
+        """
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        items = cursor.fetchall()
+        cursor.close()
+        return items
+    
+    
