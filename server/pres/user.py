@@ -9,6 +9,7 @@ from infra.dependencies import (
     get_password,
 )
 from infra.models.user import UserCreateDTO
+from server.infra.models.product import Cart
 from server.infra.userRepo import UserRepo
 
 
@@ -25,7 +26,7 @@ async def get_users2(name):
     return get_password(name)
 
 
-@user_router.get("/cart")
+@user_router.get("/cart", response_model=Cart)
 async def get_cart(conn=Depends(get_connection)):
     user_repo = UserRepo(conn)
     return user_repo.get_cart()
