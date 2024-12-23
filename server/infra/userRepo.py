@@ -75,4 +75,15 @@ class UserRepo:
         cursor.close()
         return items
     
+    def add_to_cart(self, article: int, quantity:int):
+        query = """
+        SELECT * FROM add_product_cart(%s, %s)
+"""
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (article, quantity))
+            cur.connection.commit()
+
+        
+    
     

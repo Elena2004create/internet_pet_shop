@@ -23,3 +23,8 @@ async def get_cart(conn = Depends(get_connection)):
     user_repo = UserRepo(conn)
     return user_repo.get_cart()
 
+@user_router.post('/cart')
+async def add_to_cart(article:int, quantity:int, conn = Depends(get_connection)):
+    user_repo = UserRepo(conn)
+    return user_repo.add_to_cart(article, quantity)
+

@@ -11,10 +11,11 @@ class ProductRepo:
     def get_all(self):
         query = """
         SELECT article, nameproduct, description, volume, size, country, age, price, quantitystock, image, season, idcategory
-	FROM public.products;
+	FROM public.products LIMIT 10;
         """
         with self.conn.cursor() as cur:
             cur.execute(query)
             items = cur.fetchall()
         
         return [Product(**item) for item in items]
+    
