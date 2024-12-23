@@ -31,3 +31,13 @@ class ProductRepo:
             items = cur.fetchall()
 
         return [Product(**item) for item in items]
+
+    def get_all_categories(self):
+        query = """
+        SELECT namecategory FROM category
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            items = cur.fetchall()
+
+        return [dict(item).get('namecategory') for item in items]
