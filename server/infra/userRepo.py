@@ -1,29 +1,33 @@
 from fastapi import HTTPException
 import psycopg
 from infra.models.user import UserCreateDTO, UserReadDTO, LoginDTO
+from server.infra.models.product import Cart, ProductInCart
 
 
 class UserRepo:
     def __init__(self, connection: psycopg.Connection):
         self.conn = connection
 
-
     def create_user(self, user: UserCreateDTO):
-
         query = """
         CALL create_new_user(%s, %s, %s, %s, %s);
         """
         cursor = self.conn.cursor()
         try:
             cursor.execute("SAVEPOINT savepoint_create_user")
-            
-            cursor.execute(query, (user.name, user.email, user.sex, user.password, "User"))
-        except psycopg.errors.UniqueViolation:
+
+            cursor.execute(
+                query, (user.name, user.email, user.sex, user.password, "User")
+            )
+        except psycopg.errors.RaiseException:
             cursor.execute("ROLLBACK TO SAVEPOINT savepoint_create_user")
-            raise HTTPException(status_code=409, detail="Пользователь с таким email или login уже существует.")
+            raise HTTPException(
+                status_code=409,
+                detail="Пользователь с таким email или login уже существует.",
+            )
         except Exception as e:
             cursor.execute("ROLLBACK TO SAVEPOINT savepoint_create_user")
-            print(e)
+            raise e
         else:
             cursor.execute("RELEASE SAVEPOINT savepoint_create_user")
         finally:
@@ -40,7 +44,7 @@ class UserRepo:
         user = UserReadDTO(**user)
         cursor.close()
         return user
-    
+
     def validate_user(self, data: LoginDTO):
         query = """
         SELECT * FROM autorizarion(%s, %s)
@@ -51,7 +55,7 @@ class UserRepo:
         cursor.close()
         if not check:
             return
-        
+
         query = """
         SELECT iduser FROM users WHERE email = %s
         """
@@ -63,7 +67,6 @@ class UserRepo:
         if not user:
             return
         return user
-    
 
     def get_cart(self):
         query = """
@@ -72,18 +75,19 @@ class UserRepo:
         cursor = self.conn.cursor()
         cursor.execute(query)
         items = cursor.fetchall()
+        items = Cart(
+            Products=[ProductInCart(**item) for item in items], Итого=items[0]["Итого"]
+        )
         cursor.close()
         return items
-    
-    def add_to_cart(self, article: int, quantity:int):
+
+    def add_to_cart(self, article: int, quantity: int):
         query = """
         SELECT * FROM add_product_cart(%s, %s)
 """
 
         with self.conn.cursor() as cur:
             cur.execute(query, (article, quantity))
+            cur.execute("SELECT current_user")
+            print(cur.fetchone())
             cur.connection.commit()
-
-        
-    
-    

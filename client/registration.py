@@ -14,8 +14,8 @@ class Registr(QWidget):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-    def setupUi(self, Form):
 
+    def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(664, 475)
         self.label = QtWidgets.QLabel(parent=Form)

@@ -14,6 +14,7 @@ class Entire(QWidget):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(717, 352)
